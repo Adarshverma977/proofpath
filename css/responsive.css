@@ -1,0 +1,403 @@
+
+@media (max-width: 1100px) {
+    .nav-container {
+        padding-inline: 28px;
+        gap: 18px;
+    }
+
+    .main-nav {
+        gap: 18px;
+    }
+
+    .hero-container {
+        gap: 35px;
+    }
+
+    .hero-content h1 {
+        font-size: 46px;
+    }
+
+    .floating-proof-card {
+        right: -5px;
+    }
+
+    .benefits-container {
+        gap: 40px;
+    }
+
+    .trust-strip-inner {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 900px) {
+    .nav-container {
+        padding-inline: 24px;
+    }
+
+    .main-nav {
+        gap: 13px;
+    }
+
+    .nav-link {
+        font-size: 11px;
+    }
+
+    .nav-actions {
+        gap: 7px;
+    }
+
+    .nav-actions .btn {
+        padding-inline: 11px;
+        font-size: 11px;
+    }
+
+    .hero-container {
+        grid-template-columns: 1fr;
+        max-width: 720px;
+    }
+
+    .hero-content {
+        max-width: 650px;
+        margin-inline: auto;
+        text-align: center;
+    }
+
+    .hero-content h1,
+    .hero-description {
+        margin-inline: auto;
+    }
+
+    .hero-actions,
+    .hero-trust {
+        justify-content: center;
+    }
+
+    .hero-visual {
+        width: 100%;
+        max-width: 650px;
+        margin-inline: auto;
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .benefits-container {
+        grid-template-columns: 1fr;
+    }
+
+    .benefits-content {
+        max-width: 600px;
+        margin-inline: auto;
+    }
+
+    .benefits-visual {
+        width: 100%;
+        max-width: 600px;
+        margin-inline: auto;
+    }
+
+    .footer-main {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 38px;
+    }
+}
+
+@media (max-width: 640px) {
+    .site-header {
+        height: 68px;
+    }
+
+    .nav-container {
+        padding-inline: 16px;
+    }
+
+    .brand-logo {
+        font-size: 19px;
+    }
+
+    .brand-symbol {
+        width: 33px;
+        height: 33px;
+    }
+
+    .main-nav {
+        position: absolute;
+        top: 67px;
+        left: 0;
+        right: 0;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 12px 20px 20px;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+    }
+
+    .main-nav.nav-open {
+        display: flex;
+    }
+
+    .nav-link {
+        padding: 13px 5px;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+    }
+
+    .nav-actions {
+        gap: 7px;
+    }
+
+    .nav-login,
+    .nav-cta {
+        display: none !important;
+    }
+
+    .mobile-menu-btn {
+        display: grid;
+    }
+
+    .theme-toggle,
+    .mobile-menu-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .hero-section {
+        padding-block: 65px 75px;
+    }
+
+    .hero-container {
+        width: min(100% - 32px, 1280px);
+        gap: 45px;
+    }
+
+    .hero-eyebrow {
+        font-size: 8px;
+    }
+
+    .hero-content h1 {
+        margin-top: 23px;
+        font-size: clamp(37px, 10vw, 46px);
+        letter-spacing: -1.9px;
+    }
+
+    .hero-description {
+        margin-top: 18px;
+        font-size: 13px;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        gap: 17px;
+        margin-top: 25px;
+    }
+
+    .hero-trust {
+        margin-top: 30px;
+    }
+
+    .hero-visual {
+        padding-inline: 0;
+    }
+
+    .preview-body {
+        padding: 15px;
+    }
+
+    .preview-topbar {
+        padding-inline: 14px;
+    }
+
+    .preview-stats {
+        gap: 6px;
+    }
+
+    .preview-stat {
+        padding: 10px 7px;
+    }
+
+    .preview-stat > span {
+        font-size: 8px;
+    }
+
+    .preview-stat strong {
+        font-size: 21px;
+    }
+
+    .preview-stat small {
+        font-size: 7px;
+    }
+
+    .preview-heading h3 {
+        font-size: 17px;
+    }
+
+    .preview-live {
+        display: none;
+    }
+
+    .preview-product {
+        gap: 8px;
+    }
+
+    .preview-product .badge {
+        padding-inline: 6px;
+        font-size: 8px;
+    }
+
+    .preview-product-info strong {
+        font-size: 10px;
+    }
+
+    .floating-proof-card {
+        right: -4px;
+        padding: 9px;
+        gap: 7px;
+    }
+
+    .floating-proof-icon {
+        width: 29px;
+        height: 29px;
+    }
+
+    .trust-strip-inner {
+        width: min(100% - 32px, var(--content-width));
+        padding-block: 22px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 17px;
+    }
+
+    .trust-strip-inner > span {
+        grid-column: 1 / -1;
+        text-align: center;
+    }
+
+    .trust-strip-inner > div {
+        font-size: 10px;
+    }
+
+    .section-padding {
+        padding-block: 72px;
+    }
+
+    .section-container,
+    .footer-container {
+        width: min(100% - 32px, var(--content-width));
+    }
+
+    .section-heading {
+        margin-bottom: 36px;
+    }
+
+    .section-heading h2 {
+        font-size: 27px;
+        letter-spacing: -0.8px;
+    }
+
+    .section-heading > p {
+        font-size: 12px;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-card {
+        min-height: auto;
+        padding: 22px;
+    }
+
+    .feature-card h3 {
+        margin-top: 18px;
+    }
+
+    .workflow-grid {
+        grid-template-columns: 1fr;
+        gap: 13px;
+    }
+
+    .workflow-card {
+        min-height: 200px;
+        padding: 23px;
+    }
+
+    .benefits-content h2 {
+        font-size: 34px;
+    }
+
+    .benefits-content > p {
+        font-size: 13px;
+    }
+
+    .benefits-visual {
+        min-height: 360px;
+    }
+
+    .document-stack {
+        transform: scale(0.88);
+    }
+
+    .cta-section {
+        padding: 72px 20px;
+    }
+
+    .cta-container h2 {
+        font-size: 32px;
+        letter-spacing: -1px;
+    }
+
+    .cta-container > p {
+        font-size: 12px;
+    }
+
+    .footer-main {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 35px 20px;
+    }
+
+    .footer-brand {
+        grid-column: 1 / -1;
+    }
+
+    .footer-brand p {
+        max-width: 320px;
+    }
+
+    .footer-bottom {
+        padding-block: 18px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 7px;
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 380px) {
+    .nav-container {
+        gap: 8px;
+    }
+
+    .hero-content h1 {
+        font-size: 35px;
+    }
+
+    .preview-stat strong {
+        font-size: 18px;
+    }
+
+    .preview-footer {
+        font-size: 7px;
+    }
+
+    .floating-proof-card {
+        right: -2px;
+    }
+
+    .document-stack {
+        transform: scale(0.78);
+    }
+}
