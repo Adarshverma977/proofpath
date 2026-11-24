@@ -1,0 +1,87 @@
+Folder PATH listing for volume Windows-SSD
+Volume serial number is B4ED-E277
+C:.
+|   index.html
+|   project-structure.txt
+|   README.md
+|   
++---assets
+|   +---fonts
+|   +---icons
+|   \---images
++---css
+|   |   base.css
+|   |   components.css
+|   |   layout.css
+|   |   pages.css
+|   |   responsive.css
+|   |   tokens.css
+|   |   
+|   \---pages
+|       |   add-product.css
+|       |   auth.css
+|       |   claim-details.css
+|       |   claims.css
+|       |   dashboard.css
+|       |   documents.css
+|       |   forgot-password.css
+|       |   insights.css
+|       |   landing.css
+|       |   login.css
+|       |   notifications.css
+|       |   product-details.css
+|       |   products.css
+|       |   profile.css
+|       |   settings.css
+|       |   signup.css
+|       |   verify-email.css
+|       |   warranty.css
+|       |   
+|       \---admin
+|               admin-analytics.css
+|               admin-claims.css
+|               audit-logs.css
+|               overview.css
+|               users.css
+|               verification-queue.css
+|               
+\---js
+    |   app.js
+    |   router.js
+    |   
+    +---components
+    |       dropdown.js
+    |       header.js
+    |       modal.js
+    |       sidebar.js
+    |       toast.js
+    |       
+    +---modules
+    |       analytics.js
+    |       claims.js
+    |       dashboard.js
+    |       documents.js
+    |       notifications.js
+    |       ownership.js
+    |       products.js
+    |       qrIdentity.js
+    |       services.js
+    |       warranty.js
+    |       
+    +---pages
+    |       auth.js
+    |       forgotPassword.js
+    |       login.js
+    |       signup.js
+    |       verifyEmail.js
+    |       
+    +---storage
+    |       indexedDB.js
+    |       localStorage.js
+    |       
+    \---utils
+            dateUtils.js
+            formatters.js
+            helpers.js
+            validators.js
+            

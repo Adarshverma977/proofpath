@@ -14,11 +14,23 @@
         background var(--transition-fast),
         border-color var(--transition-fast),
         color var(--transition-fast),
-        transform var(--transition-fast);
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
 }
 
 .btn:active:not(:disabled) {
     transform: scale(0.98);
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 .btn-primary {
@@ -38,6 +50,7 @@
 
 .btn-secondary:hover:not(:disabled) {
     background: var(--surface-2);
+    border-color: var(--primary);
 }
 
 .btn-ghost {
@@ -55,6 +68,10 @@
     color: var(--danger);
 }
 
+.btn-danger:hover:not(:disabled) {
+    filter: brightness(0.96);
+}
+
 .btn-sm {
     min-height: 32px;
     padding-inline: 12px;
@@ -67,10 +84,10 @@
 }
 
 .card {
+    padding: 24px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
-    padding: 24px;
     transition:
         border-color var(--transition-normal),
         transform var(--transition-normal),
@@ -97,6 +114,7 @@
 .badge-dot {
     width: 6px;
     height: 6px;
+    flex-shrink: 0;
     border-radius: 50%;
     background: currentColor;
 }
@@ -133,6 +151,7 @@
 }
 
 .form-label {
+    color: var(--text);
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.04em;
@@ -140,6 +159,7 @@
 }
 
 .form-control {
+    width: 100%;
     min-height: 40px;
     padding: 9px 12px;
     border: 1px solid var(--border);
@@ -149,7 +169,12 @@
     outline: none;
     transition:
         border-color var(--transition-fast),
-        box-shadow var(--transition-fast);
+        box-shadow var(--transition-fast),
+        background var(--transition-fast);
+}
+
+.form-control:hover:not(:disabled) {
+    border-color: var(--text-muted);
 }
 
 .form-control:focus {
@@ -157,13 +182,33 @@
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 15%, transparent);
 }
 
+.form-control:focus-visible {
+    outline: none;
+}
+
+.form-control:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: var(--surface-2);
+}
+
+.form-control[aria-invalid="true"] {
+    border-color: var(--danger);
+}
+
 .form-control::placeholder {
     color: var(--text-muted);
 }
 
 .form-error {
+    display: block;
     color: var(--danger);
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.form-error:empty {
+    display: none;
 }
 
 .divider {
