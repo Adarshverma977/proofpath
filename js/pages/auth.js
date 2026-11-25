@@ -455,20 +455,73 @@ export function initializeAuthPage() {
     clearAlert("login-alert");
   });
 
-  signupForm.addEventListener("input", (event) => {
-    const errorMap = {
-      "auth-full-name": "signup-name-error",
-      "auth-signup-email": "signup-email-error",
-      "auth-signup-password": "signup-password-error",
-      "auth-confirm-password": "signup-confirm-error",
-    };
+  
+signupForm.addEventListener("submit", (event) => {
+  event.preventDefault();
 
-    const errorId = errorMap[event.target.id];
+  clearAlert("signup-alert");
 
-    if (errorId) clearError(errorId);
+  const name = document.querySelector("#auth-full-name").value.trim();
+  const email = document.querySelector("#auth-signup-email").value.trim();
+  const password = passwordInput.value;
+  const confirmPassword = document.querySelector(
+    "#auth-confirm-password",
+  ).value;
+  const termsAccepted = document.querySelector("#auth-terms").checked;
 
-    clearAlert("signup-alert");
-  });
+  const errorIds = [
+    "signup-name-error",
+    "signup-email-error",
+    "signup-password-error",
+    "signup-confirm-error",
+    "signup-terms-error",
+  ];
+
+  errorIds.forEach(clearError);
+
+  let valid = true;
+
+  if (name.length < 2) {
+    showAlert("signup-name-error", "Please enter your full name.");
+    valid = false;
+  }
+
+  if (!email) {
+    showAlert("signup-email-error", "Email address is required.");
+    valid = false;
+  } else if (!emailPattern.test(email)) {
+    showAlert("signup-email-error", "Enter a valid email address.");
+    valid = false;
+  }
+
+  if (password.length < 8) {
+    showAlert(
+      "signup-password-error",
+      "Password must contain at least 8 characters.",
+    );
+    valid = false;
+  }
+
+  if (password !== confirmPassword) {
+    showAlert("signup-confirm-error", "Passwords do not match.");
+    valid = false;
+  }
+
+  if (!termsAccepted) {
+    showAlert("signup-terms-error", "Please accept the terms to continue.");
+    valid = false;
+  }
+
+  if (!valid) return;
+
+  const submitButton = signupForm.querySelector('button[type="submit"]');
+
+  submitButton.disabled = true;
+  submitButton.textContent = "Creating account...";
+
+  window.location.hash = `#/verify-email?email=${encodeURIComponent(email)}`;
+});
+
 
   loginForm.addEventListener("submit", (event) => {
     event.preventDefault();

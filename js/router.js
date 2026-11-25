@@ -1,5 +1,16 @@
 import { renderLandingPage, initializeLandingInteractions } from "./app.js";
+
 import { renderAuthPage, initializeAuthPage } from "./pages/auth.js";
+
+import {
+  renderForgotPasswordPage,
+  initializeForgotPasswordPage,
+} from "./pages/forgotPassword.js";
+
+import {
+  renderVerifyEmailPage,
+  initializeVerifyEmailPage,
+} from "./pages/verifyEmail.js";
 
 const app = document.getElementById("app");
 
@@ -9,32 +20,28 @@ const authRoutes = ["/login", "/signup"];
 
 const renderPlaceholderPage = (title, description, link) => {
   return `
-        <main class="auth-page">
-            <section class="auth-container">
+    <main class="auth-page">
+      <section class="auth-container">
+        <div class="auth-brand">
+          <a href="#/" class="brand-logo">
+            <span class="brand-period">ProofPath.</span>
+          </a>
+        </div>
 
-                <div class="auth-brand">
-                    <a href="#/" class="brand-logo">
-                        <span class="brand-period">ProofPath.</span>
-                    </a>
-                </div>
+        <div class="auth-card">
+          <div class="auth-heading">
+            <span class="auth-eyebrow">PROOFPATH</span>
+            <h1>${title}</h1>
+            <p>${description}</p>
+          </div>
 
-                <div class="auth-card">
-
-                    <div class="auth-heading">
-                        <span class="auth-eyebrow">PROOFPATH</span>
-                        <h1>${title}</h1>
-                        <p>${description}</p>
-                    </div>
-
-                    <a href="${link}" class="btn btn-primary auth-submit">
-                        Back to login →
-                    </a>
-
-                </div>
-
-            </section>
-        </main>
-    `;
+          <a href="${link}" class="btn btn-primary auth-submit">
+            Back to login →
+          </a>
+        </div>
+      </section>
+    </main>
+  `;
 };
 
 const routes = {
@@ -54,21 +61,13 @@ const routes = {
   },
 
   "/forgot-password": {
-    render: () =>
-      renderPlaceholderPage(
-        "Reset your password.",
-        "The password recovery experience is coming next.",
-        "#/login",
-      ),
+    render: renderForgotPasswordPage,
+    initialize: initializeForgotPasswordPage,
   },
 
   "/verify-email": {
-    render: () =>
-      renderPlaceholderPage(
-        "Verify your email.",
-        "The email verification experience is coming next.",
-        "#/login",
-      ),
+    render: renderVerifyEmailPage,
+    initialize: initializeVerifyEmailPage,
   },
 };
 
