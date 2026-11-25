@@ -1,5 +1,3 @@
-const app = document.getElementById("app");
-
 const getSavedTheme = () => {
   return localStorage.getItem("proofpath-theme") || "light";
 };
@@ -32,211 +30,261 @@ const icons = {
 };
 
 const renderNavbar = () => `
-  <header class="site-header">
-    <div class="nav-container">
+    <header class="site-header editorial-header">
+        <div class="nav-container">
 
-      <a href="#/" class="brand-logo">
-        <span class="brand-symbol">${icons.shield}</span>
-        <span>ProofPath<span class="brand-dot">.</span></span>
-      </a>
+            <a href="#/" class="brand-logo">
+                <span class="brand-symbol">${icons.shield}</span>
+                <span>ProofPath<span class="brand-dot">.</span></span>
+            </a>
 
-      <nav class="main-nav" id="main-nav">
-        <a href="#features" class="nav-link">Features</a>
-        <a href="#how-it-works" class="nav-link">How it works</a>
-        <a href="#benefits" class="nav-link">Why ProofPath</a>
-        <a href="#contact" class="nav-link">Contact</a>
-      </nav>
+            <nav class="main-nav" id="main-nav" aria-label="Main navigation">
+                <a href="#features" class="nav-link">Platform</a>
+                <a href="#how-it-works" class="nav-link">How it works</a>
+                <a href="#benefits" class="nav-link">Our approach</a>
+                <a href="#contact" class="nav-link">Get in touch</a>
+            </nav>
 
-      <div class="nav-actions">
+            <div class="nav-actions">
 
-        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-          ${getSavedTheme() === "dark" ? icons.sun : icons.moon}
-        </button>
+                <button
+                    class="theme-toggle"
+                    id="theme-toggle"
+                    type="button"
+                    aria-label="Toggle theme"
+                >
+                    ${getSavedTheme() === "dark" ? icons.sun : icons.moon}
+                </button>
 
-        <a href="#/login" class="btn btn-secondary nav-login">Log in</a>
+                <a href="#/login" class="btn btn-secondary nav-login">
+                    Log in
+                </a>
 
-        <a href="#/signup" class="btn btn-primary nav-cta">
-          Get started ${icons.arrow}
-        </a>
+                <a href="#/signup" class="btn btn-primary nav-cta">
+                    Create your archive ${icons.arrow}
+                </a>
 
-        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open navigation" aria-expanded="false">
-          ${icons.menu}
-        </button>
+                <button
+                    class="mobile-menu-btn"
+                    id="mobile-menu-btn"
+                    type="button"
+                    aria-label="Open navigation"
+                    aria-expanded="false"
+                    aria-controls="main-nav"
+                >
+                    ${icons.menu}
+                </button>
 
-      </div>
-    </div>
-  </header>
+            </div>
+        </div>
+    </header>
 `;
 
 const renderHero = () => `
-  <section class="hero-section" id="home">
-    <div class="hero-container">
+    <section class="hero-section editorial-hero" id="home">
 
-      <div class="hero-content">
+        <div class="hero-grain"></div>
 
-        <div class="hero-eyebrow">
-          <span class="eyebrow-dot"></span>
-          YOUR PRODUCTS, ONE TRUSTED PLACE
+        <div class="hero-container editorial-hero-container">
+
+            <div class="hero-content editorial-hero-content">
+
+                <div class="hero-edition">
+                    <span class="edition-line"></span>
+                    <span>THE ART OF PRODUCT OWNERSHIP</span>
+                    <span class="edition-number">PP — 001</span>
+                </div>
+
+                <h1>
+                    What you own
+                    <span>has a story.</span>
+                    <span class="hero-heading-accent">Keep every detail.</span>
+                </h1>
+
+                <p class="hero-description">
+                    From the moment you purchase something to every repair,
+                    warranty and document that follows — give everything
+                    you own a place in its story.
+                </p>
+
+                <div class="hero-actions">
+
+                    <a href="#/signup" class="btn btn-primary btn-lg">
+                        Build your product archive
+                        ${icons.arrow}
+                    </a>
+
+                    <a href="#how-it-works" class="hero-secondary-link">
+                        Discover the experience
+                        <span class="hero-link-line"></span>
+                    </a>
+
+                </div>
+
+                <div class="hero-bottom-note">
+                    <span class="hero-note-symbol">${icons.shield}</span>
+
+                    <div>
+                        <strong>One considered space.</strong>
+                        <span>Documents, warranties and product history.</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="hero-visual editorial-hero-visual">
+
+                <div class="archive-index">
+                    <span>YOUR PERSONAL ARCHIVE</span>
+                    <span>COLLECTION / 2026</span>
+                </div>
+
+                <div class="archive-composition">
+
+                    <div class="archive-backdrop"></div>
+
+                    <article class="archive-document archive-invoice">
+
+                        <div class="archive-document-top">
+                            <span>01 / PURCHASE RECORD</span>
+                            <span>${icons.document}</span>
+                        </div>
+
+                        <div class="invoice-brand">
+                            <strong>INVOICE</strong>
+                            <span>ORIGINAL PURCHASE</span>
+                        </div>
+
+                        <div class="invoice-product">
+
+                            <div class="invoice-product-visual">
+                                <svg viewBox="0 0 64 64" fill="none">
+                                    <rect x="12" y="9" width="40" height="34" rx="3" stroke="currentColor" stroke-width="1.8"/>
+                                    <path d="M7 49h50l-5 5H12l-5-5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                                    <path d="M24 49h16" stroke="currentColor" stroke-width="1.8"/>
+                                </svg>
+                            </div>
+
+                            <div>
+                                <strong>MacBook Air</strong>
+                                <span>Electronics / Laptop</span>
+                            </div>
+
+                        </div>
+
+                        <div class="invoice-divider"></div>
+
+                        <div class="invoice-details">
+                            <span>DOCUMENT TYPE</span>
+                            <strong>Purchase invoice</strong>
+                            <span>RECORD STATUS</span>
+                            <strong>Stored in archive</strong>
+                        </div>
+
+                        <div class="invoice-footer">
+                            <span>PROOFPATH / RECORD 001</span>
+                            <span>01</span>
+                        </div>
+
+                    </article>
+
+                    <article class="archive-document archive-warranty">
+
+                        <div class="warranty-top">
+                            <span>02 / COVERAGE RECORD</span>
+                            ${icons.shield}
+                        </div>
+
+                        <span class="warranty-caption">WARRANTY OVERVIEW</span>
+
+                        <h3>Coverage,<br>made visible.</h3>
+
+                        <div class="warranty-status">
+                            <span class="warranty-status-dot"></span>
+                            Active coverage
+                        </div>
+
+                        <div class="warranty-progress">
+                            <span></span>
+                        </div>
+
+                        <div class="warranty-meta">
+                            <span>Purchase record linked</span>
+                            <span>Demo</span>
+                        </div>
+
+                    </article>
+
+                    <article class="archive-product-card">
+
+                        <div class="archive-product-header">
+                            <span>03 / PRODUCT IDENTITY</span>
+                            <span>PP—001</span>
+                        </div>
+
+                        <div class="archive-product-icon">
+                            <svg viewBox="0 0 64 64" fill="none">
+                                <rect x="12" y="8" width="40" height="34" rx="3" stroke="currentColor" stroke-width="1.8"/>
+                                <path d="M7 48h50l-5 6H12l-5-6Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                                <path d="M24 48h16" stroke="currentColor" stroke-width="1.8"/>
+                            </svg>
+                        </div>
+
+                        <div class="archive-product-info">
+                            <span>YOUR PRODUCT RECORD</span>
+                            <strong>One connected history.</strong>
+                        </div>
+
+                        <div class="archive-product-footer">
+                            <span>DOCUMENTS</span>
+                            <span>WARRANTY</span>
+                            <span>HISTORY</span>
+                        </div>
+
+                    </article>
+
+                    <div class="archive-floating-seal">
+                        <span>${icons.check}</span>
+
+                        <div>
+                            <strong>Record organized</strong>
+                            <small>Illustrative preview</small>
+                        </div>
+                    </div>
+
+                    <div class="archive-side-label">
+                        KEEP WHAT MATTERS
+                    </div>
+
+                </div>
+
+                <div class="archive-bottom">
+                    <span>A MORE THOUGHTFUL WAY TO OWN.</span>
+                    <span>EST. 2026</span>
+                </div>
+
+            </div>
+
         </div>
 
-        <h1>
-          Every product has a story.
-          <span>Keep its proof.</span>
-        </h1>
-
-        <p class="hero-description">
-          Your purchase documents, warranty details and service history
-          deserve a better home. Keep everything organized in one
-          simple digital space.
-        </p>
-
-        <div class="hero-actions">
-          <a href="#/signup" class="btn btn-primary btn-lg">
-            Get started for free
-            ${icons.arrow}
-          </a>
-
-          <a href="#how-it-works" class="hero-secondary-link">
-            Explore how it works
-          </a>
+        <div class="hero-scroll-indicator">
+            <span>SCROLL TO EXPLORE</span>
+            <span class="scroll-indicator-line"></span>
         </div>
 
-        <div class="hero-trust">
-          <div class="trust-icon">${icons.shield}</div>
-          <div>
-            <strong>Your records, organized.</strong>
-            <span>Designed around clarity and control.</span>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="hero-visual">
-
-        <div class="preview-decoration decoration-one"></div>
-        <div class="preview-decoration decoration-two"></div>
-
-        <div class="dashboard-preview">
-
-          <div class="preview-topbar">
-            <div class="preview-brand">
-              <span class="preview-brand-icon">${icons.shield}</span>
-              <strong>ProofPath</strong>
-            </div>
-
-            <span class="preview-profile">AV</span>
-          </div>
-
-          <div class="preview-body">
-
-            <div class="preview-heading">
-              <div>
-                <span class="preview-greeting">MONDAY, NOVEMBER 24</span>
-                <h3>Your product space</h3>
-                <p>Everything important, in one place.</p>
-              </div>
-
-              <span class="preview-live">
-                <span></span> Overview
-              </span>
-            </div>
-
-            <div class="preview-stats">
-
-              <div class="preview-stat">
-                <span>Total products</span>
-                <strong>08</strong>
-                <small>Across 4 categories</small>
-              </div>
-
-              <div class="preview-stat">
-                <span>Active warranties</span>
-                <strong>06</strong>
-                <small>Currently protected</small>
-              </div>
-
-              <div class="preview-stat">
-                <span>Expiring soon</span>
-                <strong class="warning-number">02</strong>
-                <small>Within 30 days</small>
-              </div>
-
-            </div>
-
-            <div class="preview-products-heading">
-              <strong>Recent products</strong>
-              <span>View all →</span>
-            </div>
-
-            <div class="preview-product">
-
-              <div class="product-visual laptop-visual">
-                <svg viewBox="0 0 64 64" fill="none">
-                  <rect x="12" y="10" width="40" height="29" rx="3" stroke="currentColor" stroke-width="2"/>
-                  <path d="M7 45h50l-5 5H12l-5-5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
-                  <path d="M24 45h16" stroke="currentColor" stroke-width="2"/>
-                </svg>
-              </div>
-
-              <div class="preview-product-info">
-                <strong>MacBook Air M2</strong>
-                <span>Apple · Electronics</span>
-              </div>
-
-              <span class="badge badge-active">Active</span>
-
-            </div>
-
-            <div class="preview-product">
-
-              <div class="product-visual phone-visual">
-                <svg viewBox="0 0 64 64" fill="none">
-                  <rect x="20" y="6" width="24" height="52" rx="5" stroke="currentColor" stroke-width="2"/>
-                  <path d="M27 11h10M30 52h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-              </div>
-
-              <div class="preview-product-info">
-                <strong>iPhone 15</strong>
-                <span>Apple · Electronics</span>
-              </div>
-
-              <span class="badge badge-expiring">Expiring</span>
-
-            </div>
-
-            <div class="preview-footer">
-              <span>YOUR DIGITAL PRODUCT RECORDS</span>
-              <span>PP / 2026</span>
-            </div>
-
-          </div>
-        </div>
-
-        <div class="floating-proof-card">
-          <div class="floating-proof-icon">${icons.shield}</div>
-          <div>
-            <strong>Proof secured</strong>
-            <span>Product record ready</span>
-          </div>
-          <span class="proof-check">${icons.check}</span>
-        </div>
-
-      </div>
-    </div>
-  </section>
+    </section>
 `;
 
 const renderTrustStrip = () => `
-  <section class="trust-strip">
-    <div class="trust-strip-inner">
-      <span>ONE PLACE FOR YOUR</span>
-      <div>${icons.document} Purchase documents</div>
-      <div>${icons.shield} Warranty records</div>
-      <div>${icons.clock} Service history</div>
-      <div>${icons.qr} Digital identity</div>
-    </div>
-  </section>
+    <section class="trust-strip">
+        <div class="trust-strip-inner">
+            <span>ONE PLACE FOR YOUR</span>
+            <div>${icons.document} Purchase documents</div>
+            <div>${icons.shield} Warranty records</div>
+            <div>${icons.clock} Service history</div>
+            <div>${icons.qr} Digital identity</div>
+        </div>
+    </section>
 `;
 
 const renderFeatures = () => {
@@ -286,268 +334,273 @@ const renderFeatures = () => {
   ];
 
   return `
-    <section class="features-section section-padding" id="features">
+        <section class="features-section section-padding" id="features">
 
-      <div class="section-container">
+            <div class="section-container">
 
-        <div class="section-heading">
-          <span class="section-eyebrow">THE PROOFPATH EXPERIENCE</span>
-          <h2>Everything your products need.<br><span>Nothing you need to chase.</span></h2>
-          <p>A more organized way to manage the things you own.</p>
-        </div>
+                <div class="section-heading">
+                    <span class="section-eyebrow">THE PROOFPATH EXPERIENCE</span>
+                    <h2>Everything your products need.<br><span>Nothing you need to chase.</span></h2>
+                    <p>A more organized way to manage the things you own.</p>
+                </div>
 
-        <div class="features-grid">
+                <div class="features-grid">
 
-          ${features
-            .map(
-              (feature) => `
-                <article class="feature-card">
+                    ${features
+                      .map(
+                        (feature) => `
+                        <article class="feature-card">
 
-                  <div class="feature-card-top">
-                    <div class="feature-icon">${feature.icon}</div>
-                    <span>${feature.number}</span>
-                  </div>
+                            <div class="feature-card-top">
+                                <div class="feature-icon">${feature.icon}</div>
+                                <span>${feature.number}</span>
+                            </div>
 
-                  <h3>${feature.title}</h3>
-                  <p>${feature.description}</p>
+                            <h3>${feature.title}</h3>
+                            <p>${feature.description}</p>
 
-                  <div class="feature-line"></div>
+                            <div class="feature-line"></div>
 
-                </article>
-              `,
-            )
-            .join("")}
+                        </article>
+                    `,
+                      )
+                      .join("")}
 
-        </div>
+                </div>
 
-      </div>
-    </section>
-  `;
+            </div>
+        </section>
+    `;
 };
 
 const renderHowItWorks = () => `
-  <section class="workflow-section section-padding" id="how-it-works">
+    <section class="workflow-section section-padding" id="how-it-works">
 
-    <div class="section-container">
+        <div class="section-container">
 
-      <div class="section-heading">
-        <span class="section-eyebrow">SIMPLE BY DESIGN</span>
-        <h2>Your product history.<br><span>Three simple steps.</span></h2>
-        <p>Start with a product. Keep its entire story organized.</p>
-      </div>
+            <div class="section-heading">
+                <span class="section-eyebrow">SIMPLE BY DESIGN</span>
+                <h2>Your product history.<br><span>Three simple steps.</span></h2>
+                <p>Start with a product. Keep its entire story organized.</p>
+            </div>
 
-      <div class="workflow-grid">
+            <div class="workflow-grid">
 
-        <article class="workflow-card">
-          <span class="workflow-number">01</span>
-          <div class="workflow-icon">${icons.document}</div>
-          <h3>Register your product</h3>
-          <p>Add product details, purchase information and relevant documents.</p>
-        </article>
+                <article class="workflow-card">
+                    <span class="workflow-number">01</span>
+                    <div class="workflow-icon">${icons.document}</div>
+                    <h3>Register your product</h3>
+                    <p>Add product details, purchase information and relevant documents.</p>
+                </article>
 
-        <article class="workflow-card">
-          <span class="workflow-number">02</span>
-          <div class="workflow-icon">${icons.shield}</div>
-          <h3>Organize its proof</h3>
-          <p>Keep warranty details, invoices and service records connected to the product.</p>
-        </article>
+                <article class="workflow-card">
+                    <span class="workflow-number">02</span>
+                    <div class="workflow-icon">${icons.shield}</div>
+                    <h3>Organize its proof</h3>
+                    <p>Keep warranty details, invoices and service records connected to the product.</p>
+                </article>
 
-        <article class="workflow-card">
-          <span class="workflow-number">03</span>
-          <div class="workflow-icon">${icons.qr}</div>
-          <h3>Access its history</h3>
-          <p>Explore your digital product profile and share selected records through QR.</p>
-        </article>
+                <article class="workflow-card">
+                    <span class="workflow-number">03</span>
+                    <div class="workflow-icon">${icons.qr}</div>
+                    <h3>Access its history</h3>
+                    <p>Explore your digital product profile and share selected records through QR.</p>
+                </article>
 
-      </div>
+            </div>
 
-    </div>
-  </section>
+        </div>
+    </section>
 `;
 
 const renderBenefits = () => `
-  <section class="benefits-section section-padding" id="benefits">
+    <section class="benefits-section section-padding" id="benefits">
 
-    <div class="section-container benefits-container">
+        <div class="section-container benefits-container">
 
-      <div class="benefits-content">
-        <span class="section-eyebrow">BUILT AROUND YOUR OWNERSHIP</span>
+            <div class="benefits-content">
+                <span class="section-eyebrow">BUILT AROUND YOUR OWNERSHIP</span>
 
-        <h2>
-          Keep the proof.<br>
-          <span>Know the history.</span>
-        </h2>
+                <h2>
+                    Keep the proof.<br>
+                    <span>Know the history.</span>
+                </h2>
 
-        <p>
-          A product is more than what you purchase.
-          Its documents, warranty and service history
-          are all part of its story.
-        </p>
+                <p>
+                    A product is more than what you purchase.
+                    Its documents, warranty and service history
+                    are all part of its story.
+                </p>
 
-        <div class="benefit-list">
+                <div class="benefit-list">
 
-          <div class="benefit-item">
-            <span>${icons.check}</span>
-            <div>
-              <strong>One organized product record</strong>
-              <p>Keep important product information connected.</p>
+                    <div class="benefit-item">
+                        <span>${icons.check}</span>
+                        <div>
+                            <strong>One organized product record</strong>
+                            <p>Keep important product information connected.</p>
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <span>${icons.check}</span>
+                        <div>
+                            <strong>Clear warranty visibility</strong>
+                            <p>Understand what is active and what needs attention.</p>
+                        </div>
+                    </div>
+
+                    <div class="benefit-item">
+                        <span>${icons.check}</span>
+                        <div>
+                            <strong>Useful lifecycle insights</strong>
+                            <p>Understand your product's repair and ownership history.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <a href="#contact" class="btn btn-primary">
+                    Discover ProofPath ${icons.arrow}
+                </a>
             </div>
-          </div>
 
-          <div class="benefit-item">
-            <span>${icons.check}</span>
-            <div>
-              <strong>Clear warranty visibility</strong>
-              <p>Understand what is active and what needs attention.</p>
-            </div>
-          </div>
+            <div class="benefits-visual">
 
-          <div class="benefit-item">
-            <span>${icons.check}</span>
-            <div>
-              <strong>Useful lifecycle insights</strong>
-              <p>Understand your product's repair and ownership history.</p>
+                <div class="document-stack">
+
+                    <div class="document-sheet sheet-back">
+                        <span>WARRANTY CERTIFICATE</span>
+                        <div class="document-lines">
+                            <i></i><i></i><i></i>
+                        </div>
+                    </div>
+
+                    <div class="document-sheet sheet-front">
+
+                        <div class="document-brand">
+                            ${icons.shield}
+                            <span>PROOFPATH RECORD</span>
+                        </div>
+
+                        <div class="document-seal">
+                            ${icons.check}
+                        </div>
+
+                        <span class="document-caption">DIGITAL PRODUCT PROFILE</span>
+
+                        <h3>Product record</h3>
+
+                        <div class="document-lines">
+                            <i></i><i></i><i></i><i></i>
+                        </div>
+
+                        <div class="document-bottom">
+                            <span>PP-2026-00842</span>
+                            <span>REGISTERED RECORD</span>
+                        </div>
+
+                    </div>
+                </div>
             </div>
-          </div>
 
         </div>
-
-        <a href="#contact" class="btn btn-primary">
-          Discover ProofPath ${icons.arrow}
-        </a>
-      </div>
-
-      <div class="benefits-visual">
-
-        <div class="document-stack">
-
-          <div class="document-sheet sheet-back">
-            <span>WARRANTY CERTIFICATE</span>
-            <div class="document-lines">
-              <i></i><i></i><i></i>
-            </div>
-          </div>
-
-          <div class="document-sheet sheet-front">
-
-            <div class="document-brand">
-              ${icons.shield}
-              <span>PROOFPATH RECORD</span>
-            </div>
-
-            <div class="document-seal">
-              ${icons.check}
-            </div>
-
-            <span class="document-caption">DIGITAL PRODUCT PROFILE</span>
-
-            <h3>Product record</h3>
-
-            <div class="document-lines">
-              <i></i><i></i><i></i><i></i>
-            </div>
-
-            <div class="document-bottom">
-              <span>PP-2026-00842</span>
-              <span>REGISTERED RECORD</span>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
+    </section>
 `;
 
 const renderCTA = () => `
-  <section class="cta-section" id="contact">
+    <section class="cta-section" id="contact">
 
-    <div class="cta-container">
+        <div class="cta-container">
 
-      <div class="cta-icon">${icons.shield}</div>
+            <div class="cta-icon">${icons.shield}</div>
 
-      <span>YOUR PRODUCT STORY STARTS HERE</span>
+            <span>YOUR PRODUCT STORY STARTS HERE</span>
 
-      <h2>Give every product<br>the record it deserves.</h2>
+            <h2>Give every product<br>the record it deserves.</h2>
 
-      <p>Bring your documents, warranty details and product history together with ProofPath.</p>
+            <p>
+                Bring your documents, warranty details and product history
+                together with ProofPath.
+            </p>
 
-      <a href="#/signup" class="btn btn-cta">
-        Get started for free ${icons.arrow}
-      </a>
+            <a href="#/signup" class="btn btn-cta">
+                Get started for free ${icons.arrow}
+            </a>
 
-      <small>One place. Every proof. Better organized.</small>
+            <small>One place. Every proof. Better organized.</small>
 
-    </div>
-  </section>
+        </div>
+    </section>
 `;
 
 const renderFooter = () => `
-  <footer class="site-footer">
+    <footer class="site-footer">
 
-    <div class="footer-container">
+        <div class="footer-container">
 
-      <div class="footer-main">
+            <div class="footer-main">
 
-        <div class="footer-brand">
-          <a href="#/" class="brand-logo">
-            <span class="brand-symbol">${icons.shield}</span>
-            <span>ProofPath<span class="brand-dot">.</span></span>
-          </a>
+                <div class="footer-brand">
+                    <a href="#/" class="brand-logo">
+                        <span class="brand-symbol">${icons.shield}</span>
+                        <span>ProofPath<span class="brand-dot">.</span></span>
+                    </a>
 
-          <p>
-            A more thoughtful way to manage
-            your product documents, warranties
-            and ownership history.
-          </p>
+                    <p>
+                        A more thoughtful way to manage
+                        your product documents, warranties
+                        and ownership history.
+                    </p>
+                </div>
+
+                <div class="footer-links">
+                    <strong>Explore</strong>
+                    <a href="#features">Features</a>
+                    <a href="#how-it-works">How it works</a>
+                    <a href="#benefits">Why ProofPath</a>
+                </div>
+
+                <div class="footer-links">
+                    <strong>Platform</strong>
+                    <a href="#features">Product records</a>
+                    <a href="#features">Warranty tracking</a>
+                    <a href="#features">Digital documents</a>
+                </div>
+
+                <div class="footer-links">
+                    <strong>Information</strong>
+                    <a href="#contact">Contact</a>
+                    <a href="#contact">Privacy</a>
+                    <a href="#contact">Terms</a>
+                </div>
+
+            </div>
+
+            <div class="footer-bottom">
+                <span>© ${new Date().getFullYear()} ProofPath. All rights reserved.</span>
+                <span>Every product has a story. Keep its proof.</span>
+            </div>
+
         </div>
-
-        <div class="footer-links">
-          <strong>Explore</strong>
-          <a href="#features">Features</a>
-          <a href="#how-it-works">How it works</a>
-          <a href="#benefits">Why ProofPath</a>
-        </div>
-
-        <div class="footer-links">
-          <strong>Platform</strong>
-          <a href="#">Product records</a>
-          <a href="#">Warranty tracking</a>
-          <a href="#">Digital documents</a>
-        </div>
-
-        <div class="footer-links">
-          <strong>Information</strong>
-          <a href="#contact">Contact</a>
-          <a href="#">Privacy</a>
-          <a href="#">Terms</a>
-        </div>
-
-      </div>
-
-      <div class="footer-bottom">
-        <span>© ${new Date().getFullYear()} ProofPath. All rights reserved.</span>
-        <span>Every product has a story. Keep its proof.</span>
-      </div>
-
-    </div>
-  </footer>
+    </footer>
 `;
 
 export const renderLandingPage = () => {
   return `
-    ${renderNavbar()}
-    <main>
-      ${renderHero()}
-      ${renderTrustStrip()}
-      ${renderFeatures()}
-      ${renderHowItWorks()}
-      ${renderBenefits()}
-      ${renderCTA()}
-    </main>
-    ${renderFooter()}
-  `;
+        ${renderNavbar()}
+
+        <main>
+            ${renderHero()}
+            ${renderTrustStrip()}
+            ${renderFeatures()}
+            ${renderHowItWorks()}
+            ${renderBenefits()}
+            ${renderCTA()}
+        </main>
+
+        ${renderFooter()}
+    `;
 };
 
 export const initializeLandingInteractions = () => {
@@ -558,11 +611,17 @@ export const initializeLandingInteractions = () => {
   if (themeButton) {
     themeButton.addEventListener("click", () => {
       const currentTheme = document.documentElement.getAttribute("data-theme");
+
       const nextTheme = currentTheme === "dark" ? "light" : "dark";
 
       setTheme(nextTheme);
 
       themeButton.innerHTML = nextTheme === "dark" ? icons.sun : icons.moon;
+
+      themeButton.setAttribute(
+        "aria-label",
+        nextTheme === "dark" ? "Switch to light theme" : "Switch to dark theme",
+      );
     });
   }
 
@@ -571,23 +630,48 @@ export const initializeLandingInteractions = () => {
       const isOpen = nav.classList.toggle("nav-open");
 
       menuButton.setAttribute("aria-expanded", String(isOpen));
+
+      menuButton.setAttribute(
+        "aria-label",
+        isOpen ? "Close navigation" : "Open navigation",
+      );
     });
 
     nav.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", () => {
         nav.classList.remove("nav-open");
         menuButton.setAttribute("aria-expanded", "false");
+        menuButton.setAttribute("aria-label", "Open navigation");
       });
     });
   }
 
-  const revealElements = document.querySelectorAll(
-    ".trust-strip, .section-heading, .feature-card, .workflow-card, .benefits-content, .benefits-visual, .cta-section",
-  );
+  const revealElements = document.querySelectorAll(`
+        .editorial-hero-content,
+        .archive-document,
+        .archive-product-card,
+        .archive-floating-seal,
+        .hero-scroll-indicator,
+        .trust-strip,
+        .section-heading,
+        .feature-card,
+        .workflow-card,
+        .benefits-content,
+        .benefits-visual,
+        .cta-section
+    `);
 
-  revealElements.forEach((element) => {
-    element.classList.add("reveal");
-  });
+  const reducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
+
+  if (reducedMotion) {
+    revealElements.forEach((element) => {
+      element.classList.add("is-visible");
+    });
+
+    return;
+  }
 
   if ("IntersectionObserver" in window) {
     const revealObserver = new IntersectionObserver(
@@ -606,6 +690,7 @@ export const initializeLandingInteractions = () => {
     );
 
     revealElements.forEach((element) => {
+      element.classList.add("reveal");
       revealObserver.observe(element);
     });
   } else {
