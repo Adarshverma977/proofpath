@@ -1,3 +1,6 @@
+import { registerUser, loginUser } from "../auth/authService.js";
+import { createSession } from "../auth/sessionService.js";
+
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function renderAuthPage() {
@@ -185,7 +188,7 @@ export function renderAuthPage() {
                     </label>
                   </div>
 
-                  <div class="auth-alert" id="login-alert" role="alert" hidden></div>
+                  <div class="auth-alert" id="login-alert" role="alert" aria-live="polite" hidden></div>
 
                   <button type="submit" class="btn btn-primary auth-submit">
                     Sign in <span>→</span>
@@ -315,7 +318,7 @@ export function renderAuthPage() {
 
                   <span class="form-error" id="signup-terms-error"></span>
 
-                  <div class="auth-alert" id="signup-alert" role="alert" hidden></div>
+                  <div class="auth-alert" id="signup-alert" role="alert" aria-live="polite" hidden></div>
 
                   <button type="submit" class="btn btn-primary auth-submit">
                     Create account <span>→</span>
@@ -364,33 +367,36 @@ export function initializeAuthPage() {
 
   if (!loginForm || !signupForm) return;
 
+  const controller = new AbortController();
+  const { signal } = controller;
+
   const scene = document.querySelector("#auth-card-scene");
+
+  const loginEmail = document.querySelector("#auth-login-email");
+  const loginPassword = document.querySelector("#auth-login-password");
+  const rememberMe = document.querySelector("#auth-remember-me");
+
+  const fullName = document.querySelector("#auth-full-name");
+  const signupEmail = document.querySelector("#auth-signup-email");
+  const signupPassword = document.querySelector("#auth-signup-password");
+  const confirmPassword = document.querySelector("#auth-confirm-password");
+  const terms = document.querySelector("#auth-terms");
+
+  const strengthBar = document.querySelector("#password-strength-bar");
+  const strengthLabel = document.querySelector("#password-strength-label");
 
   const isSignup = window.location.hash.startsWith("#/signup");
 
   scene?.classList.toggle("is-signup", isSignup);
 
-  document.querySelectorAll("[data-password-toggle]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const input = document.getElementById(button.dataset.passwordToggle);
+  const setError = (id, message = "") => {
+    const element = document.getElementById(id);
 
-      if (!input) return;
+    if (element) element.textContent = message;
+  };
 
-      const isPassword = input.type === "password";
-
-      input.type = isPassword ? "text" : "password";
-
-      button.setAttribute(
-        "aria-label",
-        isPassword ? "Hide password" : "Show password",
-      );
-    });
-  });
-
-  const clearError = (id) => {
-    const error = document.getElementById(id);
-
-    if (error) error.textContent = "";
+  const clearErrors = (ids) => {
+    ids.forEach((id) => setError(id));
   };
 
   const showAlert = (id, message) => {
@@ -411,9 +417,45 @@ export function initializeAuthPage() {
     alert.hidden = true;
   };
 
-  const passwordInput = document.querySelector("#auth-signup-password");
-  const strengthBar = document.querySelector("#password-strength-bar");
-  const strengthLabel = document.querySelector("#password-strength-label");
+  const setLoading = (form, loading, loadingText, defaultText) => {
+    const button = form.querySelector('button[type="submit"]');
+
+    if (!button) return;
+
+    button.disabled = loading;
+    button.innerHTML = loading ? loadingText : `${defaultText} <span>→</span>`;
+  };
+
+  const loginErrorIds = ["login-email-error", "login-password-error"];
+
+  const signupErrorIds = [
+    "signup-name-error",
+    "signup-email-error",
+    "signup-password-error",
+    "signup-confirm-error",
+    "signup-terms-error",
+  ];
+
+  document.querySelectorAll("[data-password-toggle]").forEach((button) => {
+    button.addEventListener(
+      "click",
+      () => {
+        const input = document.getElementById(button.dataset.passwordToggle);
+
+        if (!input) return;
+
+        const isPassword = input.type === "password";
+
+        input.type = isPassword ? "text" : "password";
+
+        button.setAttribute(
+          "aria-label",
+          isPassword ? "Hide password" : "Show password",
+        );
+      },
+      { signal },
+    );
+  });
 
   const getPasswordStrength = (password) => {
     let score = 0;
@@ -426,185 +468,201 @@ export function initializeAuthPage() {
     return score;
   };
 
-  passwordInput.addEventListener("input", () => {
-    const score = getPasswordStrength(passwordInput.value);
+  signupPassword?.addEventListener(
+    "input",
+    () => {
+      const score = getPasswordStrength(signupPassword.value);
 
-    const labels = [
-      "Password strength",
-      "Weak password",
-      "Fair password",
-      "Good password",
-      "Strong password",
-    ];
+      const labels = [
+        "Password strength",
+        "Weak password",
+        "Fair password",
+        "Good password",
+        "Strong password",
+      ];
 
-    strengthBar.style.width = `${score * 25}%`;
-    strengthLabel.textContent = labels[score];
+      if (strengthBar) {
+        strengthBar.style.width = `${score * 25}%`;
+      }
 
-    clearError("signup-password-error");
-  });
+      if (strengthLabel) {
+        strengthLabel.textContent = labels[score];
+      }
 
-  loginForm.addEventListener("input", (event) => {
-    if (event.target.id === "auth-login-email") {
-      clearError("login-email-error");
-    }
+      setError("signup-password-error");
+      clearAlert("signup-alert");
+    },
+    { signal },
+  );
 
-    if (event.target.id === "auth-login-password") {
-      clearError("login-password-error");
-    }
+  loginForm.addEventListener(
+    "input",
+    (event) => {
+      if (event.target.id === "auth-login-email") {
+        setError("login-email-error");
+      }
 
-    clearAlert("login-alert");
-  });
+      if (event.target.id === "auth-login-password") {
+        setError("login-password-error");
+      }
 
-  
-signupForm.addEventListener("submit", (event) => {
-  event.preventDefault();
+      clearAlert("login-alert");
+    },
+    { signal },
+  );
 
-  clearAlert("signup-alert");
+  signupForm.addEventListener(
+    "input",
+    (event) => {
+      const errorMap = {
+        "auth-full-name": "signup-name-error",
+        "auth-signup-email": "signup-email-error",
+        "auth-signup-password": "signup-password-error",
+        "auth-confirm-password": "signup-confirm-error",
+        "auth-terms": "signup-terms-error",
+      };
 
-  const name = document.querySelector("#auth-full-name").value.trim();
-  const email = document.querySelector("#auth-signup-email").value.trim();
-  const password = passwordInput.value;
-  const confirmPassword = document.querySelector(
-    "#auth-confirm-password",
-  ).value;
-  const termsAccepted = document.querySelector("#auth-terms").checked;
+      const errorId = errorMap[event.target.id];
 
-  const errorIds = [
-    "signup-name-error",
-    "signup-email-error",
-    "signup-password-error",
-    "signup-confirm-error",
-    "signup-terms-error",
-  ];
+      if (errorId) setError(errorId);
 
-  errorIds.forEach(clearError);
+      clearAlert("signup-alert");
+    },
+    { signal },
+  );
 
-  let valid = true;
+  loginForm.addEventListener(
+    "submit",
+    async (event) => {
+      event.preventDefault();
 
-  if (name.length < 2) {
-    showAlert("signup-name-error", "Please enter your full name.");
-    valid = false;
-  }
+      clearErrors(loginErrorIds);
+      clearAlert("login-alert");
 
-  if (!email) {
-    showAlert("signup-email-error", "Email address is required.");
-    valid = false;
-  } else if (!emailPattern.test(email)) {
-    showAlert("signup-email-error", "Enter a valid email address.");
-    valid = false;
-  }
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value;
 
-  if (password.length < 8) {
-    showAlert(
-      "signup-password-error",
-      "Password must contain at least 8 characters.",
-    );
-    valid = false;
-  }
+      let valid = true;
 
-  if (password !== confirmPassword) {
-    showAlert("signup-confirm-error", "Passwords do not match.");
-    valid = false;
-  }
+      if (!email) {
+        setError("login-email-error", "Email address is required.");
+        valid = false;
+      } else if (!emailPattern.test(email)) {
+        setError("login-email-error", "Enter a valid email address.");
+        valid = false;
+      }
 
-  if (!termsAccepted) {
-    showAlert("signup-terms-error", "Please accept the terms to continue.");
-    valid = false;
-  }
+      if (!password) {
+        setError("login-password-error", "Password is required.");
+        valid = false;
+      }
 
-  if (!valid) return;
+      if (!valid) return;
 
-  const submitButton = signupForm.querySelector('button[type="submit"]');
+      setLoading(loginForm, true, "Signing in...", "Sign in");
 
-  submitButton.disabled = true;
-  submitButton.textContent = "Creating account...";
+      try {
+        const user = await loginUser({
+          email,
+          password,
+        });
 
-  window.location.hash = `#/verify-email?email=${encodeURIComponent(email)}`;
-});
+        if (!user.emailVerified) {
+          window.location.hash = `#/verify-email?email=${encodeURIComponent(user.email)}`;
 
+          return;
+        }
 
-  loginForm.addEventListener("submit", (event) => {
-    event.preventDefault();
+        createSession(user, rememberMe.checked);
 
-    clearAlert("login-alert");
+        window.location.hash = "#/dashboard";
+      } catch (error) {
+        showAlert(
+          "login-alert",
+          error.message || "Unable to sign in. Please try again.",
+        );
+      } finally {
+        setLoading(loginForm, false, "Signing in...", "Sign in");
+      }
+    },
+    { signal },
+  );
 
-    const email = document.querySelector("#auth-login-email").value.trim();
-    const password = document.querySelector("#auth-login-password").value;
+  signupForm.addEventListener(
+    "submit",
+    async (event) => {
+      event.preventDefault();
 
-    let valid = true;
+      clearErrors(signupErrorIds);
+      clearAlert("signup-alert");
 
-    if (!email) {
-      showAlert("login-email-error", "Email address is required.");
-      valid = false;
-    } else if (!emailPattern.test(email)) {
-      showAlert("login-email-error", "Enter a valid email address.");
-      valid = false;
-    }
+      const name = fullName.value.trim();
+      const email = signupEmail.value.trim();
+      const password = signupPassword.value;
+      const confirmation = confirmPassword.value;
+      const termsAccepted = terms.checked;
 
-    if (!password) {
-      showAlert("login-password-error", "Password is required.");
-      valid = false;
-    }
+      let valid = true;
 
-    if (!valid) return;
+      if (name.length < 2) {
+        setError("signup-name-error", "Please enter your full name.");
+        valid = false;
+      }
 
-    showAlert(
-      "login-alert",
-      "Login form validated successfully. Authentication will be connected later.",
-    );
-  });
+      if (!email) {
+        setError("signup-email-error", "Email address is required.");
+        valid = false;
+      } else if (!emailPattern.test(email)) {
+        setError("signup-email-error", "Enter a valid email address.");
+        valid = false;
+      }
 
-  signupForm.addEventListener("submit", (event) => {
-    event.preventDefault();
+      if (password.length < 8) {
+        setError(
+          "signup-password-error",
+          "Password must contain at least 8 characters.",
+        );
+        valid = false;
+      }
 
-    clearAlert("signup-alert");
+      if (password !== confirmation) {
+        setError("signup-confirm-error", "Passwords do not match.");
+        valid = false;
+      }
 
-    const name = document.querySelector("#auth-full-name").value.trim();
-    const email = document.querySelector("#auth-signup-email").value.trim();
-    const password = passwordInput.value;
-    const confirmPassword = document.querySelector(
-      "#auth-confirm-password",
-    ).value;
-    const termsAccepted = document.querySelector("#auth-terms").checked;
+      if (!termsAccepted) {
+        setError("signup-terms-error", "Please accept the terms to continue.");
+        valid = false;
+      }
 
-    let valid = true;
+      if (!valid) return;
 
-    if (name.length < 2) {
-      showAlert("signup-name-error", "Please enter your full name.");
-      valid = false;
-    }
+      setLoading(signupForm, true, "Creating account...", "Create account");
 
-    if (!email) {
-      showAlert("signup-email-error", "Email address is required.");
-      valid = false;
-    } else if (!emailPattern.test(email)) {
-      showAlert("signup-email-error", "Enter a valid email address.");
-      valid = false;
-    }
+      try {
+        const user = await registerUser({
+          fullName: name,
+          email,
+          password,
+        });
 
-    if (password.length < 8) {
-      showAlert(
-        "signup-password-error",
-        "Password must contain at least 8 characters.",
-      );
-      valid = false;
-    }
+        window.location.hash = `#/verify-email?email=${encodeURIComponent(user.email)}`;
+      } catch (error) {
+        const message = error.message || "Unable to create your account.";
 
-    if (password !== confirmPassword) {
-      showAlert("signup-confirm-error", "Passwords do not match.");
-      valid = false;
-    }
+        if (message.includes("already exists")) {
+          setError("signup-email-error", message);
+        } else {
+          showAlert("signup-alert", message);
+        }
+      } finally {
+        setLoading(signupForm, false, "Creating account...", "Create account");
+      }
+    },
+    { signal },
+  );
 
-    if (!termsAccepted) {
-      showAlert("signup-terms-error", "Please accept the terms to continue.");
-      valid = false;
-    }
-
-    if (!valid) return;
-
-    showAlert(
-      "signup-alert",
-      "Signup form validated successfully. Account creation will be connected later.",
-    );
-  });
+  return () => {
+    controller.abort();
+  };
 }
