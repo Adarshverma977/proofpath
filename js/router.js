@@ -8,6 +8,11 @@ import {
 } from "./pages/forgotPassword.js";
 
 import {
+  renderDashboardPage,
+  initializeDashboardPage,
+} from "./pages/dashboard.js";
+
+import {
   renderVerifyEmailPage,
   initializeVerifyEmailPage,
 } from "./pages/verifyEmail.js";
@@ -15,10 +20,141 @@ import {
 const app = document.getElementById("app");
 
 let previousRoute = null;
+let currentPageCleanup = null;
+let activePageStyles = [];
+let navigationId = 0;
 
 const authRoutes = ["/login", "/signup"];
 
-const renderPlaceholderPage = (title, description, link) => {
+const routes = {
+  "/": {
+    render: renderLandingPage,
+    initialize: initializeLandingInteractions,
+    styles: ["./css/pages/landing.css"],
+  },
+
+  "/login": {
+    render: renderAuthPage,
+    initialize: initializeAuthPage,
+    styles: ["./css/pages/auth.css"],
+  },
+
+  "/signup": {
+    render: renderAuthPage,
+    initialize: initializeAuthPage,
+    styles: ["./css/pages/auth.css"],
+  },
+
+  "/forgot-password": {
+    render: renderForgotPasswordPage,
+    initialize: initializeForgotPasswordPage,
+    styles: ["./css/pages/forgot-password.css"],
+  },
+
+  "/verify-email": {
+    render: renderVerifyEmailPage,
+    initialize: initializeVerifyEmailPage,
+    styles: ["./css/pages/verify-email.css"],
+  },
+
+  "/dashboard": {
+    render: renderDashboardPage,
+    initialize: initializeDashboardPage,
+    styles: ["./css/pages/dashboard.css"],
+  },
+};
+
+const getCurrentRoute = () => {
+  const hash = window.location.hash;
+
+  if (!hash || hash === "#") {
+    return "/";
+  }
+
+  if (!hash.startsWith("#/")) {
+    return null;
+  }
+
+  const path = hash.slice(1).split("?")[0];
+
+  return path.replace(/\/+$/, "") || "/";
+};
+
+const loadStylesheet = (href) => {
+  const existingStylesheet = document.querySelector(
+    `link[data-page-stylesheet="${href}"]`,
+  );
+
+  if (existingStylesheet) {
+    return Promise.resolve(existingStylesheet);
+  }
+
+  return new Promise((resolve, reject) => {
+    const stylesheet = document.createElement("link");
+
+    stylesheet.rel = "stylesheet";
+    stylesheet.href = href;
+    stylesheet.dataset.pageStylesheet = href;
+
+    stylesheet.onload = () => resolve(stylesheet);
+
+    stylesheet.onerror = () => {
+      stylesheet.remove();
+      reject(new Error(`Unable to load stylesheet: ${href}`));
+    };
+
+    document.head.appendChild(stylesheet);
+  });
+};
+
+const loadPageStyles = async (styles = []) => {
+  const loadedStyles = [];
+
+  try {
+    for (const href of styles) {
+      const stylesheet = await loadStylesheet(href);
+      loadedStyles.push(stylesheet);
+    }
+
+    return loadedStyles;
+  } catch (error) {
+    loadedStyles.forEach((stylesheet) => {
+      stylesheet.remove();
+    });
+
+    throw error;
+  }
+};
+
+const removeActivePageStyles = () => {
+  activePageStyles.forEach((stylesheet) => {
+    stylesheet.remove();
+  });
+
+  activePageStyles = [];
+};
+
+const cleanupCurrentPage = () => {
+  if (typeof currentPageCleanup === "function") {
+    currentPageCleanup();
+  }
+
+  currentPageCleanup = null;
+};
+
+const updateAuthMode = (currentRoute) => {
+  const authScene = document.getElementById("auth-card-scene");
+
+  if (!authScene) {
+    return false;
+  }
+
+  authScene.classList.toggle("is-signup", currentRoute === "/signup");
+
+  return true;
+};
+
+const renderPlaceholderPage = (title, description) => {
   return `
     <main class="auth-page">
       <section class="auth-container">
@@ -35,8 +171,8 @@ const renderPlaceholderPage = (title, description, link) => {
             <p>${description}</p>
           </div>
 
-          <a href="${link}" class="btn btn-primary auth-submit">
-            Back to login →
+          <a href="#/" class="btn btn-primary auth-submit">
+            Back to home →
           </a>
         </div>
       </section>
@@ -44,78 +180,29 @@ const renderPlaceholderPage = (title, description, link) => {
   `;
 };
 
-const routes = {
-  "/": {
-    render: renderLandingPage,
-    initialize: initializeLandingInteractions,
-  },
-
-  "/login": {
-    render: renderAuthPage,
-    initialize: initializeAuthPage,
-  },
-
-  "/signup": {
-    render: renderAuthPage,
-    initialize: initializeAuthPage,
-  },
-
-  "/forgot-password": {
-    render: renderForgotPasswordPage,
-    initialize: initializeForgotPasswordPage,
-  },
-
-  "/verify-email": {
-    render: renderVerifyEmailPage,
-    initialize: initializeVerifyEmailPage,
-  },
-};
-
-const getCurrentRoute = () => {
-  const hash = window.location.hash;
-
-  if (!hash || hash === "#") {
-    return "/";
-  }
-
-  if (!hash.startsWith("#/")) {
-    return null;
-  }
-
-  return hash.slice(1).split("?")[0];
-};
-
-const updateAuthMode = (currentRoute) => {
-  const authScene = document.getElementById("auth-card-scene");
-
-  if (!authScene) {
-    return false;
-  }
-
-  authScene.classList.toggle("is-signup", currentRoute === "/signup");
-
-  return true;
-};
-
 const renderNotFoundPage = () => {
   app.innerHTML = renderPlaceholderPage(
     "Page not found.",
     "The page you are looking for does not exist.",
-    "#/",
   );
 };
 
-const renderRoute = () => {
+const renderRoute = async () => {
   const currentRoute = getCurrentRoute();
 
   if (currentRoute === null) {
     return;
   }
 
+  const currentNavigationId = ++navigationId;
+
   const route = routes[currentRoute];
 
   if (!route) {
+    cleanupCurrentPage();
+    removeActivePageStyles();
     renderNotFoundPage();
+
     previousRoute = currentRoute;
     return;
   }
@@ -128,18 +215,51 @@ const renderRoute = () => {
     return;
   }
 
-  app.innerHTML = route.render();
+  cleanupCurrentPage();
 
-  if (route.initialize) {
-    route.initialize();
+  let nextPageStyles = [];
+
+  try {
+    nextPageStyles = await loadPageStyles(route.styles);
+
+    if (currentNavigationId !== navigationId) {
+      nextPageStyles.forEach((stylesheet) => {
+        if (!activePageStyles.includes(stylesheet)) {
+          stylesheet.remove();
+        }
+      });
+
+      return;
+    }
+
+    removeActivePageStyles();
+
+    activePageStyles = nextPageStyles;
+
+    app.innerHTML = route.render();
+
+    if (typeof route.initialize === "function") {
+      const cleanup = route.initialize();
+
+      currentPageCleanup = typeof cleanup === "function" ? cleanup : null;
+    }
+
+    previousRoute = currentRoute;
+
+    window.scrollTo({
+      top: 0,
+      behavior: "auto",
+    });
+  } catch (error) {
+    console.error(error);
+
+    if (currentNavigationId === navigationId) {
+      renderPlaceholderPage(
+        "Something went wrong.",
+        "We could not load this page. Please try again.",
+      );
+    }
   }
-
-  previousRoute = currentRoute;
-
-  window.scrollTo({
-    top: 0,
-    behavior: "auto",
-  });
 };
 
 export const initializeRouter = () => {
@@ -150,4 +270,10 @@ export const initializeRouter = () => {
   }
 
   renderRoute();
+
+  return () => {
+    window.removeEventListener("hashchange", renderRoute);
+    cleanupCurrentPage();
+    removeActivePageStyles();
+  };
 };

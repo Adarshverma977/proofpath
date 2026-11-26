@@ -2,10 +2,20 @@ const getSavedTheme = () => {
   return localStorage.getItem("proofpath-theme") || "light";
 };
 
+
 const setTheme = (theme) => {
+  if (!["light", "dark"].includes(theme)) return;
+
   document.documentElement.setAttribute("data-theme", theme);
   localStorage.setItem("proofpath-theme", theme);
+
+  document.dispatchEvent(
+    new CustomEvent("proofpath:theme-updated", {
+      detail: { theme },
+    }),
+  );
 };
+
 
 const icons = {
   shield: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg>`,
@@ -700,8 +710,17 @@ export const initializeLandingInteractions = () => {
   }
 };
 
+
 const initializeApp = async () => {
   setTheme(getSavedTheme());
+
+  document.addEventListener("proofpath:theme-change", (event) => {
+    const { theme } = event.detail || {};
+
+    if (theme === "light" || theme === "dark") {
+      setTheme(theme);
+    }
+  });
 
   try {
     const { initializeRouter } = await import("./router.js");
