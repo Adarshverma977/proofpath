@@ -1,3 +1,11 @@
+import {
+  createOrGetVerificationOtp,
+  resendVerificationOtp,
+  verifyVerificationOtp,
+} from "../auth/verificationService.js";
+
+import { getUserByEmail, markEmailVerified } from "../auth/authService.js";
+
 const shieldIcon = `
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
     stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"
@@ -20,7 +28,7 @@ const getEmailFromHash = () => {
   const query = window.location.hash.split("?")[1] || "";
   const params = new URLSearchParams(query);
 
-  return params.get("email")?.trim() || "";
+  return params.get("email")?.trim().toLowerCase() || "";
 };
 
 const escapeHTML = (value) => {
@@ -64,39 +72,85 @@ export function renderVerifyEmailPage() {
 
           <div class="auth-heading verify-heading" id="verify-heading">
             <span class="auth-eyebrow">EMAIL VERIFICATION</span>
-            <h1 id="verify-title">Check your inbox</h1>
+            <h1 id="verify-title">Verify your email address</h1>
             <p id="verify-description">
-              We've prepared a verification request for
-              ${emailContent}. Complete the verification step to continue.
+              Enter the 6-digit verification code associated with
+              ${emailContent}.
             </p>
           </div>
 
           <div class="verify-demo-notice" id="verify-demo-notice">
             <span aria-hidden="true">ⓘ</span>
-            <p>
-              Demo mode: ProofPath is currently frontend-only.
-              No verification email has been sent.
-            </p>
+            <div>
+              <strong>Development Demo OTP</strong>
+              <p>
+                No email has been sent. Use the code displayed below
+                to complete local verification.
+              </p>
+              <strong class="verify-demo-code" id="verify-demo-code">
+                ------
+              </strong>
+            </div>
           </div>
 
-          <div class="verify-actions" id="verify-pending-actions">
+          <form class="verify-otp-form" id="verify-otp-form" novalidate>
+
+            <div class="form-group">
+              <label class="form-label" for="verify-otp-input">
+                6-digit verification code
+              </label>
+
+              <input
+                class="form-control verify-otp-input"
+                id="verify-otp-input"
+                name="otp"
+                type="text"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                maxlength="6"
+                pattern="[0-9]{6}"
+                placeholder="Enter 6-digit OTP"
+                aria-describedby="verify-otp-error verify-otp-hint"
+                required
+              />
+
+              <small id="verify-otp-hint">
+                Enter all six digits shown in the demo code above.
+              </small>
+
+              <span
+                class="form-error"
+                id="verify-otp-error"
+                role="alert"
+              ></span>
+            </div>
+
+            <div class="verify-otp-meta">
+              <span>Code expires in</span>
+              <strong id="verify-countdown">05:00</strong>
+            </div>
+
+            <div class="auth-alert" id="verify-alert" role="alert" aria-live="polite" hidden></div>
 
             <button
               class="btn btn-primary btn-lg verify-primary-action"
-              id="simulate-verification"
-              type="button"
+              id="verify-submit"
+              type="submit"
             >
-              Simulate email verification
-              <span aria-hidden="true">→</span>
+              Verify email <span aria-hidden="true">→</span>
             </button>
 
-            <button
-              class="btn btn-secondary verify-resend-button"
-              id="resend-verification"
-              type="button"
-            >
-              Resend verification email
-            </button>
+            <div class="verify-resend-row">
+              <span>Didn't receive a code?</span>
+              <button
+                class="btn btn-ghost verify-resend-button"
+                id="resend-verification"
+                type="button"
+                disabled
+              >
+                Resend OTP in 30s
+              </button>
+            </div>
 
             <p
               class="verify-feedback"
@@ -105,6 +159,20 @@ export function renderVerifyEmailPage() {
               aria-live="polite"
             ></p>
 
+          </form>
+
+          <div
+            class="verify-invalid"
+            id="verify-invalid"
+            hidden
+          >
+            <h2>Verification unavailable</h2>
+            <p id="verify-invalid-message">
+              We couldn't find an account for this email address.
+            </p>
+            <a href="#/signup" class="btn btn-primary btn-block">
+              Create an account
+            </a>
           </div>
 
           <div
@@ -118,8 +186,8 @@ export function renderVerifyEmailPage() {
             <h2>Email verified</h2>
 
             <p>
-              Your demo verification is complete. You can now continue
-              to the ProofPath login screen.
+              Your email verification is complete. You can now sign in
+              to your ProofPath account.
             </p>
 
             <a href="#/login" class="btn btn-primary btn-block">
@@ -128,7 +196,7 @@ export function renderVerifyEmailPage() {
           </div>
 
           <div class="verify-footer" id="verify-footer">
-            <span>Already verified?</span>
+            <span>Already have an account?</span>
             <a href="#/login">Sign in</a>
           </div>
 
@@ -145,86 +213,326 @@ export function renderVerifyEmailPage() {
 }
 
 export function initializeVerifyEmailPage() {
+  const email = getEmailFromHash();
+
+  const form = document.querySelector("#verify-otp-form");
+  const otpInput = document.querySelector("#verify-otp-input");
+  const otpError = document.querySelector("#verify-otp-error");
+
+  const demoCodeElement = document.querySelector("#verify-demo-code");
+  const countdownElement = document.querySelector("#verify-countdown");
+
   const resendButton = document.querySelector("#resend-verification");
-  const simulateButton = document.querySelector("#simulate-verification");
+  const submitButton = document.querySelector("#verify-submit");
 
   const feedback = document.querySelector("#verify-feedback");
-  const pendingActions = document.querySelector("#verify-pending-actions");
-  const successSection = document.querySelector("#verify-success");
+  const pendingActions = document.querySelector("#verify-otp-form");
 
   const heading = document.querySelector("#verify-heading");
   const demoNotice = document.querySelector("#verify-demo-notice");
   const footer = document.querySelector("#verify-footer");
 
-  if (!resendButton || !simulateButton || !successSection) return;
+  const invalidSection = document.querySelector("#verify-invalid");
+  const invalidMessage = document.querySelector("#verify-invalid-message");
 
-  let remainingSeconds = 0;
-  let cooldownInterval = null;
+  const successSection = document.querySelector("#verify-success");
+
+  if (!form || !otpInput || !resendButton || !submitButton || !successSection) {
+    return;
+  }
+
+  const controller = new AbortController();
+  const { signal } = controller;
+
+  let expiryInterval = null;
+  let resendInterval = null;
+  let expiresAt = 0;
   let isVerified = false;
+  let isSubmitting = false;
 
-  const stopCooldown = () => {
-    if (cooldownInterval !== null) {
-      window.clearInterval(cooldownInterval);
-      cooldownInterval = null;
+  const stopInterval = (interval) => {
+    if (interval !== null) {
+      window.clearInterval(interval);
     }
-
-    remainingSeconds = 0;
   };
 
-  const startCooldown = () => {
-    remainingSeconds = 30;
+  const cleanupIntervals = () => {
+    stopInterval(expiryInterval);
+    stopInterval(resendInterval);
 
-    resendButton.disabled = true;
-    resendButton.textContent = `Resend available in ${remainingSeconds}s`;
+    expiryInterval = null;
+    resendInterval = null;
+  };
 
-    stopCooldown();
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
 
-    remainingSeconds = 30;
+    return `${String(minutes).padStart(2, "0")}:${String(
+      remainingSeconds,
+    ).padStart(2, "0")}`;
+  };
 
-    cooldownInterval = window.setInterval(() => {
-      remainingSeconds -= 1;
+  const showFeedback = (message) => {
+    if (feedback) feedback.textContent = message;
+  };
 
-      if (remainingSeconds <= 0) {
-        stopCooldown();
+  const showError = (message) => {
+    if (otpError) otpError.textContent = message;
+  };
+
+  const clearError = () => {
+    if (otpError) otpError.textContent = "";
+  };
+
+  const showInvalidState = (message) => {
+    cleanupIntervals();
+
+    if (heading) heading.hidden = true;
+    if (demoNotice) demoNotice.hidden = true;
+    if (pendingActions) pendingActions.hidden = true;
+    if (footer) footer.hidden = true;
+
+    if (invalidMessage) invalidMessage.textContent = message;
+    if (invalidSection) invalidSection.hidden = false;
+  };
+
+  const showSuccessState = () => {
+    isVerified = true;
+    cleanupIntervals();
+
+    form.hidden = true;
+
+    if (heading) heading.hidden = true;
+    if (demoNotice) demoNotice.hidden = true;
+    if (footer) footer.hidden = true;
+    if (invalidSection) invalidSection.hidden = true;
+
+    successSection.hidden = false;
+    successSection.focus();
+  };
+
+  const updateCountdown = () => {
+    const remaining = Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
+
+    countdownElement.textContent = formatTime(remaining);
+
+    if (remaining <= 0) {
+      stopInterval(expiryInterval);
+      expiryInterval = null;
+
+      submitButton.disabled = true;
+      showError("Your OTP has expired. Request a new verification code.");
+      showFeedback("Your previous verification code is no longer valid.");
+    }
+  };
+
+  const startExpiryCountdown = (timestamp) => {
+    stopInterval(expiryInterval);
+
+    expiresAt = timestamp;
+
+    updateCountdown();
+
+    expiryInterval = window.setInterval(updateCountdown, 1000);
+  };
+
+  const startResendCooldown = (seconds) => {
+    stopInterval(resendInterval);
+
+    let remaining = seconds;
+
+    resendButton.disabled = remaining > 0;
+
+    const updateResendButton = () => {
+      if (remaining <= 0) {
+        stopInterval(resendInterval);
+        resendInterval = null;
 
         resendButton.disabled = false;
-        resendButton.textContent = "Resend verification email";
-
-        feedback.textContent = "You can request another demo resend.";
+        resendButton.textContent = "Resend OTP";
 
         return;
       }
 
-      resendButton.textContent = `Resend available in ${remainingSeconds}s`;
+      resendButton.disabled = true;
+      resendButton.textContent = `Resend OTP in ${remaining}s`;
+    };
+
+    updateResendButton();
+
+    if (remaining <= 0) return;
+
+    resendInterval = window.setInterval(() => {
+      remaining -= 1;
+      updateResendButton();
     }, 1000);
   };
 
-  resendButton.addEventListener("click", () => {
-    if (resendButton.disabled || isVerified) return;
+  const loadVerification = () => {
+    const user = getUserByEmail(email);
 
-    feedback.textContent = "Demo resend request recorded. No email was sent.";
+    if (!user) {
+      showInvalidState(
+        "No account was found for this email address. Please create an account first.",
+      );
 
-    startCooldown();
-  });
+      return false;
+    }
 
-  simulateButton.addEventListener("click", () => {
-    if (isVerified) return;
+    if (user.emailVerified) {
+      showInvalidState(
+        "This email address has already been verified. Please sign in.",
+      );
 
-    isVerified = true;
+      return false;
+    }
 
-    stopCooldown();
+    try {
+      const record = createOrGetVerificationOtp(email);
 
-    resendButton.disabled = true;
-    simulateButton.disabled = true;
+      demoCodeElement.textContent = record.demoCode;
 
-    heading.hidden = true;
-    demoNotice.hidden = true;
-    pendingActions.hidden = true;
-    footer.hidden = true;
+      startExpiryCountdown(record.expiresAt);
+      startResendCooldown(record.resendRemaining);
 
-    successSection.hidden = false;
-    successSection.focus();
-  });
+      return true;
+    } catch (error) {
+      showInvalidState(
+        error.message || "Unable to initialize email verification.",
+      );
 
-  window.addEventListener("hashchange", stopCooldown, { once: true });
+      return false;
+    }
+  };
+
+  if (!email) {
+    showInvalidState(
+      "No email address was provided. Please create an account first.",
+    );
+
+    return () => {
+      cleanupIntervals();
+      controller.abort();
+    };
+  }
+
+  if (!loadVerification()) {
+    return () => {
+      cleanupIntervals();
+      controller.abort();
+    };
+  }
+
+  otpInput.addEventListener(
+    "input",
+    () => {
+      otpInput.value = otpInput.value.replace(/\D/g, "").slice(0, 6);
+
+      clearError();
+    },
+    { signal },
+  );
+
+  form.addEventListener(
+    "submit",
+    (event) => {
+      event.preventDefault();
+
+      if (isVerified || isSubmitting) return;
+
+      clearError();
+      showFeedback("");
+
+      const enteredOtp = otpInput.value.trim();
+
+      if (!/^\d{6}$/.test(enteredOtp)) {
+        showError("Please enter a valid 6-digit OTP.");
+        otpInput.focus();
+        return;
+      }
+
+      if (Date.now() >= expiresAt) {
+        showError("Your OTP has expired. Request a new verification code.");
+        return;
+      }
+
+      isSubmitting = true;
+      submitButton.disabled = true;
+      submitButton.textContent = "Verifying...";
+
+      try {
+        const result = verifyVerificationOtp(email, enteredOtp);
+
+        if (!result.success) {
+          showError(result.message);
+
+          if (result.reason === "locked" || result.reason === "expired") {
+            submitButton.disabled =
+              result.reason === "locked" || Date.now() >= expiresAt;
+          } else {
+            submitButton.disabled = false;
+          }
+
+          otpInput.focus();
+          return;
+        }
+
+        const verifiedUser = markEmailVerified(email);
+
+        if (!verifiedUser?.emailVerified) {
+          throw new Error("Unable to update your verification status.");
+        }
+
+        showSuccessState();
+      } catch (error) {
+        showError(error.message || "Verification failed. Please try again.");
+
+        submitButton.disabled = false;
+      } finally {
+        isSubmitting = false;
+
+        if (!isVerified) {
+          submitButton.textContent = "Verify email →";
+        }
+      }
+    },
+    { signal },
+  );
+
+  resendButton.addEventListener(
+    "click",
+    () => {
+      if (isVerified || resendButton.disabled) return;
+
+      clearError();
+      showFeedback("");
+
+      try {
+        const record = resendVerificationOtp(email);
+
+        demoCodeElement.textContent = record.demoCode;
+
+        otpInput.value = "";
+        submitButton.disabled = false;
+
+        startExpiryCountdown(record.expiresAt);
+        startResendCooldown(record.resendRemaining);
+
+        showFeedback(
+          "A new demo OTP has been generated. Your previous code is invalid.",
+        );
+      } catch (error) {
+        showFeedback(
+          error.message || "Unable to generate a new verification code.",
+        );
+      }
+    },
+    { signal },
+  );
+
+  return () => {
+    cleanupIntervals();
+    controller.abort();
+  };
 }
