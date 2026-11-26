@@ -17,6 +17,8 @@ import {
   initializeVerifyEmailPage,
 } from "./pages/verifyEmail.js";
 
+import { isAuthenticated } from "./auth/sessionService.js";
+
 const app = document.getElementById("app");
 
 let previousRoute = null;
@@ -30,36 +32,42 @@ const routes = {
   "/": {
     render: renderLandingPage,
     initialize: initializeLandingInteractions,
+    access: "public",
     styles: ["./css/pages/landing.css"],
   },
 
   "/login": {
     render: renderAuthPage,
     initialize: initializeAuthPage,
+    access: "guest",
     styles: ["./css/pages/auth.css"],
   },
 
   "/signup": {
     render: renderAuthPage,
     initialize: initializeAuthPage,
+    access: "guest",
     styles: ["./css/pages/auth.css"],
   },
 
   "/forgot-password": {
     render: renderForgotPasswordPage,
     initialize: initializeForgotPasswordPage,
+    access: "guest",
     styles: ["./css/pages/forgot-password.css"],
   },
 
   "/verify-email": {
     render: renderVerifyEmailPage,
     initialize: initializeVerifyEmailPage,
+    access: "public",
     styles: ["./css/pages/verify-email.css"],
   },
 
   "/dashboard": {
     render: renderDashboardPage,
     initialize: initializeDashboardPage,
+    access: "protected",
     styles: ["./css/pages/dashboard.css"],
   },
 };
@@ -154,6 +162,22 @@ const updateAuthMode = (currentRoute) => {
   return true;
 };
 
+const checkRouteAccess = (route, currentRoute) => {
+  const authenticated = isAuthenticated();
+
+  if (route.access === "protected" && !authenticated) {
+    window.location.hash = "#/login";
+    return false;
+  }
+
+  if (route.access === "guest" && authenticated) {
+    window.location.hash = "#/dashboard";
+    return false;
+  }
+
+  return true;
+};
+
 const renderPlaceholderPage = (title, description) => {
   return `
     <main class="auth-page">
@@ -204,6 +228,10 @@ const renderRoute = async () => {
     renderNotFoundPage();
 
     previousRoute = currentRoute;
+    return;
+  }
+
+  if (!checkRouteAccess(route, currentRoute)) {
     return;
   }
 

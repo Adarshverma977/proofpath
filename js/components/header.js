@@ -1,4 +1,5 @@
 import { openMobileSidebar } from "./sidebar.js";
+import { destroySession } from "../auth/sessionService.js";
 
 const icons = {
   menu: `
@@ -298,6 +299,8 @@ export function initializeHeader() {
   logoutButton?.addEventListener(
     "click",
     () => {
+      destroySession();
+
       window.location.hash = "#/login";
     },
     { signal },

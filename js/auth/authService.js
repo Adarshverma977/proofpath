@@ -146,3 +146,38 @@ export const markEmailVerified = (email) => {
 
   return createPublicUser(users[userIndex]);
 };
+
+export const updateUserPassword = async ({ email, newPassword }) => {
+  if (typeof email !== "string" || !EMAIL_REGEX.test(email.trim())) {
+    throw new Error("Please enter a valid email address.");
+  }
+
+  if (typeof newPassword !== "string" || newPassword.length < 8) {
+    throw new Error("Password must contain at least 8 characters.");
+  }
+
+  const normalizedEmail = normalizeEmail(email);
+  const users = getUsers();
+
+  const userIndex = users.findIndex((user) => user.email === normalizedEmail);
+
+  if (userIndex === -1) {
+    throw new Error("Account not found.");
+  }
+
+  const passwordHash = await hashPassword(newPassword);
+
+  users[userIndex] = {
+    ...users[userIndex],
+    passwordHash,
+    updatedAt: new Date().toISOString(),
+  };
+
+  const saved = setItem(USERS_STORAGE_KEY, users);
+
+  if (!saved) {
+    throw new Error("Unable to update your password. Please try again.");
+  }
+
+  return createPublicUser(users[userIndex]);
+};
