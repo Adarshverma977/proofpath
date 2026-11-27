@@ -23,6 +23,11 @@ import {
 } from "./pages/addProduct.js";
 
 import {
+  renderProductDetailsPage,
+  initializeProductDetailsPage,
+} from "./pages/productDetails.js";
+
+import {
   renderVerifyEmailPage,
   initializeVerifyEmailPage,
 } from "./pages/verifyEmail.js";
@@ -94,6 +99,13 @@ const routes = {
     access: "protected",
     styles: ["./css/pages/products.css"],
   },
+
+  "/products/:id": {
+    render: renderProductDetailsPage,
+    initialize: initializeProductDetailsPage,
+    access: "protected",
+    styles: ["./css/pages/product-details.css"],
+  },
 };
 
 const getCurrentRoute = () => {
@@ -110,6 +122,20 @@ const getCurrentRoute = () => {
   const path = hash.slice(1).split("?")[0];
 
   return path.replace(/\/+$/, "") || "/";
+};
+
+const resolveRoute = (currentRoute) => {
+  if (routes[currentRoute]) {
+    return routes[currentRoute];
+  }
+
+  const productDetailsMatch = currentRoute.match(/^\/products\/([^/]+)$/);
+
+  if (productDetailsMatch) {
+    return routes["/products/:id"];
+  }
+
+  return null;
 };
 
 const loadStylesheet = (href) => {
@@ -244,7 +270,7 @@ const renderRoute = async () => {
 
   const currentNavigationId = ++navigationId;
 
-  const route = routes[currentRoute];
+  const route = resolveRoute(currentRoute);
 
   if (!route) {
     cleanupCurrentPage();
@@ -303,13 +329,18 @@ const renderRoute = async () => {
       behavior: "auto",
     });
   } catch (error) {
-    console.error(error);
+    console.error("Route rendering failed:", error);
 
     if (currentNavigationId === navigationId) {
+      cleanupCurrentPage();
+      removeActivePageStyles();
+
       renderPlaceholderPage(
         "Something went wrong.",
         "We could not load this page. Please try again.",
       );
+
+      previousRoute = currentRoute;
     }
   }
 };
@@ -325,6 +356,9 @@ export const initializeRouter = () => {
 
   return () => {
     window.removeEventListener("hashchange", renderRoute);
+
+    navigationId++;
+
     cleanupCurrentPage();
     removeActivePageStyles();
   };

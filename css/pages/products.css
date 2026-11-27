@@ -657,3 +657,36 @@
     transition: none;
   }
 }
+
+.products-details-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 180ms ease, gap 180ms ease;
+}
+
+.products-details-link svg {
+  width: 15px;
+  height: 15px;
+  transition: transform 180ms ease;
+}
+
+.products-details-link:hover {
+  color: var(--color-primary-hover);
+  gap: 9px;
+}
+
+.products-details-link:hover svg {
+  transform: translateX(2px);
+}
+
+.products-details-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+  border-radius: 3px;
+}

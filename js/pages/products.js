@@ -9,7 +9,14 @@ import {
   deleteProduct,
 } from "../modules/products.js";
 
-import { createFileURL, revokeFileURL } from "../storage/indexedDB.js";
+import { getCurrentUser } from "../auth/sessionService.js";
+
+import {
+  createFileURL,
+  revokeFileURL,
+  getFiles,
+  deleteFile,
+} from "../storage/indexedDB.js";
 
 const icons = {
   package: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 8 9 5 9-5M3 8v9l9 5 9-5V8M12 13v9"/></svg>`,
@@ -62,6 +69,10 @@ const formatDate = (value) => {
 };
 
 const formatCurrency = (value) => {
+  if (value === null || value === undefined || value === "") {
+    return "Not available";
+  }
+
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
@@ -94,7 +105,10 @@ const renderProductImage = (product) => {
   }
 
   return `
-    <div class="products-image-placeholder" data-image-placeholder="${escapeHTML(product.id)}">
+    <div
+      class="products-image-placeholder"
+      data-image-placeholder="${escapeHTML(product.id)}"
+    >
       ${icons.image}
       <span>Loading image...</span>
     </div>
@@ -181,6 +195,15 @@ const renderProductCard = (product) => {
                 : "Serial number not added"
             }
           </span>
+
+          <a
+            href="#/products/${encodeURIComponent(product.id)}"
+            class="products-details-link"
+            aria-label="View details for ${escapeHTML(product.name)}"
+          >
+            View details
+            ${icons.arrow}
+          </a>
         </div>
 
       </div>
@@ -324,6 +347,47 @@ const renderProductsContent = () => {
   `;
 };
 
+const cleanupProductFiles = async (product) => {
+  const fileIds = new Set();
+
+  if (product.imageId) {
+    fileIds.add(product.imageId);
+  }
+
+  let cleanupFailed = false;
+
+  try {
+    const user = getCurrentUser();
+
+    if (user) {
+      const files = await getFiles({ ownerId: user.id });
+
+      const relatedFiles = files.filter(
+        (file) => file.productId === product.id,
+      );
+
+      relatedFiles.forEach((file) => {
+        fileIds.add(file.id);
+      });
+    }
+  } catch (error) {
+    console.warn("Unable to retrieve associated product files:", error);
+    cleanupFailed = true;
+  }
+
+  for (const fileId of fileIds) {
+    try {
+      revokeFileURL(fileId);
+      await deleteFile(fileId);
+    } catch (error) {
+      console.warn(`Unable to delete associated file ${fileId}:`, error);
+      cleanupFailed = true;
+    }
+  }
+
+  return cleanupFailed;
+};
+
 const initializeProductsInteractions = () => {
   const grid = document.getElementById("products-grid");
   const searchInput = document.getElementById("products-search");
@@ -388,8 +452,10 @@ const initializeProductsInteractions = () => {
       oldest: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
       "name-asc": (a, b) => a.name.localeCompare(b.name),
       "name-desc": (a, b) => b.name.localeCompare(a.name),
-      "price-high": (a, b) => Number(b.purchasePrice) - Number(a.purchasePrice),
-      "price-low": (a, b) => Number(a.purchasePrice) - Number(b.purchasePrice),
+      "price-high": (a, b) =>
+        Number(b.purchasePrice || 0) - Number(a.purchasePrice || 0),
+      "price-low": (a, b) =>
+        Number(a.purchasePrice || 0) - Number(b.purchasePrice || 0),
     };
 
     filtered.sort(sortFunctions[sort] || sortFunctions.recent);
@@ -416,7 +482,11 @@ const initializeProductsInteractions = () => {
             `[data-image-placeholder="${CSS.escape(product.id)}"]`,
           );
 
-          if (!placeholder) return;
+          if (!placeholder) {
+            revokeFileURL(product.imageId);
+            imageURLs.delete(product.id);
+            return;
+          }
 
           const image = document.createElement("img");
 
@@ -427,11 +497,12 @@ const initializeProductsInteractions = () => {
           image.addEventListener(
             "error",
             () => {
-              image.remove();
               placeholder.innerHTML = `
-              ${icons.package}
-              <span>Image unavailable</span>
-            `;
+                ${icons.package}
+                <span>Image unavailable</span>
+              `;
+
+              image.replaceWith(placeholder);
             },
             { once: true },
           );
@@ -453,6 +524,7 @@ const initializeProductsInteractions = () => {
     releaseImageURLs();
 
     const filteredProducts = getFilteredProducts();
+
     const hasFilters =
       searchInput.value.trim() !== "" ||
       categoryFilter.value !== "all" ||
@@ -535,20 +607,18 @@ const initializeProductsInteractions = () => {
           throw new Error("Product could not be found.");
         }
 
-        if (product.imageId) {
-          revokeFileURL(product.imageId);
-          imageURLs.delete(product.id);
-
-          try {
-            await deleteProductImage(product.imageId);
-          } catch (error) {
-            console.warn("Unable to remove product image:", error);
-          }
-        }
+        const cleanupFailed = await cleanupProductFiles(product);
 
         await refreshProducts();
 
-        showFeedback("Product deleted successfully.");
+        if (cleanupFailed) {
+          showFeedback(
+            "Product deleted, but some associated files could not be removed.",
+            "error",
+          );
+        } else {
+          showFeedback("Product and associated files deleted successfully.");
+        }
       } catch (error) {
         console.error("Product deletion failed:", error);
 
@@ -580,11 +650,6 @@ const initializeProductsInteractions = () => {
     renderVersion += 1;
     releaseImageURLs();
   };
-};
-
-const deleteProductImage = async (fileId) => {
-  const { deleteFile } = await import("../storage/indexedDB.js");
-  return deleteFile(fileId);
 };
 
 export function renderProductsPage() {
