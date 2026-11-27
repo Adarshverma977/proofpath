@@ -13,6 +13,11 @@ import {
 } from "./pages/dashboard.js";
 
 import {
+  renderProductsPage,
+  initializeProductsPage,
+} from "./pages/products.js";
+
+import {
   renderAddProductPage,
   initializeAddProductPage,
 } from "./pages/addProduct.js";
@@ -81,6 +86,13 @@ const routes = {
     initialize: initializeAddProductPage,
     access: "protected",
     styles: ["./css/pages/add-product.css"],
+  },
+
+  "/products": {
+    render: renderProductsPage,
+    initialize: initializeProductsPage,
+    access: "protected",
+    styles: ["./css/pages/products.css"],
   },
 };
 
