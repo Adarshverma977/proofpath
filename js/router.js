@@ -33,6 +33,11 @@ import {
 } from "./pages/productDetails.js";
 
 import {
+  renderDocumentsPage,
+  initializeDocumentsPage,
+} from "./pages/documents.js";
+
+import {
   renderVerifyEmailPage,
   initializeVerifyEmailPage,
 } from "./pages/verifyEmail.js";
@@ -117,6 +122,13 @@ const routes = {
     initialize: initializeEditProductPage,
     access: "protected",
     styles: ["./css/pages/add-product.css", "./css/pages/edit-product.css"],
+  },
+
+  "/documents": {
+    render: renderDocumentsPage,
+    initialize: initializeDocumentsPage,
+    access: "protected",
+    styles: ["./css/pages/documents.css"],
   },
 };
 
