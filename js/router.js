@@ -23,6 +23,11 @@ import {
 } from "./pages/addProduct.js";
 
 import {
+  renderEditProductPage,
+  initializeEditProductPage,
+} from "./pages/editProduct.js";
+
+import {
   renderProductDetailsPage,
   initializeProductDetailsPage,
 } from "./pages/productDetails.js";
@@ -106,6 +111,13 @@ const routes = {
     access: "protected",
     styles: ["./css/pages/product-details.css"],
   },
+
+  "/products/:id/edit": {
+    render: renderEditProductPage,
+    initialize: initializeEditProductPage,
+    access: "protected",
+    styles: ["./css/pages/add-product.css", "./css/pages/edit-product.css"],
+  },
 };
 
 const getCurrentRoute = () => {
@@ -127,6 +139,12 @@ const getCurrentRoute = () => {
 const resolveRoute = (currentRoute) => {
   if (routes[currentRoute]) {
     return routes[currentRoute];
+  }
+
+  const editProductMatch = currentRoute.match(/^\/products\/([^/]+)\/edit$/);
+
+  if (editProductMatch) {
+    return routes["/products/:id/edit"];
   }
 
   const productDetailsMatch = currentRoute.match(/^\/products\/([^/]+)$/);
