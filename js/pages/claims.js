@@ -755,13 +755,13 @@ const initializeClaimsInteractions = () => {
       form.querySelector('[name="requestedAmount"]').value =
         claim.requestedAmount ?? "";
 
-      form.querySelector("#claim-form-title").textContent = "Edit claim";
+      root.querySelector("#claim-form-title").textContent = "Edit claim";
       form.querySelector("#claim-submit-button").innerHTML =
         `${icon("check", 16)} Save changes`;
     } else {
       productSelect.disabled = false;
 
-      form.querySelector("#claim-form-title").textContent = "Create a claim";
+      root.querySelector("#claim-form-title").textContent = "Create a claim";
       form.querySelector("#claim-submit-button").innerHTML =
         `${icon("send", 16)} Submit claim`;
     }

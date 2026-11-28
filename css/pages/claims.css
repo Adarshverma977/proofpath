@@ -1396,3 +1396,12 @@
     flex: 1 1 0;
   }
 }
+
+.claim-form-panel {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.claim-form-panel::-webkit-scrollbar {
+  display: none;
+}
