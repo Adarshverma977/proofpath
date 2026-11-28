@@ -38,6 +38,11 @@ import {
 } from "./pages/documents.js";
 
 import {
+  renderWarrantyPage,
+  initializeWarrantyPage,
+} from "./pages/warranty.js";
+
+import {
   renderVerifyEmailPage,
   initializeVerifyEmailPage,
 } from "./pages/verifyEmail.js";
@@ -129,6 +134,13 @@ const routes = {
     initialize: initializeDocumentsPage,
     access: "protected",
     styles: ["./css/pages/documents.css"],
+  },
+
+  "/warranties": {
+    render: renderWarrantyPage,
+    initialize: initializeWarrantyPage,
+    access: "protected",
+    styles: ["./css/pages/warranty.css"],
   },
 };
 

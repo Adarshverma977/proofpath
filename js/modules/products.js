@@ -53,13 +53,17 @@ const getTodayDate = () => {
 };
 
 const getDaysDifference = (startDate, endDate) => {
+  if (!isValidDate(startDate) || !isValidDate(endDate)) {
+    return null;
+  }
+
   const [startYear, startMonth, startDay] = startDate.split("-").map(Number);
   const [endYear, endMonth, endDay] = endDate.split("-").map(Number);
 
   const start = Date.UTC(startYear, startMonth - 1, startDay);
   const end = Date.UTC(endYear, endMonth - 1, endDay);
 
-  return Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+  return Math.round((end - start) / (1000 * 60 * 60 * 24));
 };
 
 const normalizeString = (value) => {
@@ -233,13 +237,18 @@ export const validateProduct = (data, userId, excludeProductId = null) => {
 };
 
 export const getWarrantyStatus = (product) => {
-  if (!product?.warrantyEndDate) {
+  if (!product?.warrantyEndDate || !isValidDate(product.warrantyEndDate)) {
     return "unknown";
   }
 
   const today = getTodayDate();
+  const warrantyStartDate = product.warrantyStartDate;
 
-  if (product.warrantyStartDate && today < product.warrantyStartDate) {
+  if (
+    warrantyStartDate &&
+    isValidDate(warrantyStartDate) &&
+    today < warrantyStartDate
+  ) {
     return "upcoming";
   }
 
@@ -248,6 +257,10 @@ export const getWarrantyStatus = (product) => {
   }
 
   const remainingDays = getDaysDifference(today, product.warrantyEndDate);
+
+  if (remainingDays === null) {
+    return "unknown";
+  }
 
   if (remainingDays <= EXPIRING_SOON_DAYS) {
     return "expiring";
