@@ -42,6 +42,8 @@ import {
   initializeWarrantyPage,
 } from "./pages/warranty.js";
 
+import { renderClaimsPage, initializeClaimsPage } from "./pages/claims.js";
+
 import {
   renderVerifyEmailPage,
   initializeVerifyEmailPage,
@@ -141,6 +143,13 @@ const routes = {
     initialize: initializeWarrantyPage,
     access: "protected",
     styles: ["./css/pages/warranty.css"],
+  },
+
+  "/claims": {
+    render: renderClaimsPage,
+    initialize: initializeClaimsPage,
+    access: "protected",
+    styles: ["./css/pages/claims.css"],
   },
 };
 
